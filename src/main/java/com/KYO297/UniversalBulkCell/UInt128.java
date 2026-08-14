@@ -132,37 +132,38 @@ public class UInt128 extends Number {
         return doubleValue() / 3402823669209384634633746074317682114.55d;
     }
 
-    @Override
-    public String toString() {
-        if (isEmpty()) return "0";
+    public long[] divideByInt(int divisor) {
+        long d = Integer.toUnsignedLong(divisor);
 
-        final long M32 = 0xFFFFFFFFL;   // isolates the low 32 bits as unsigned
-        char[] buf = new char[39];      // 2^128 − 1 has 39 decimal digits
-        int pos = 39;
+        // Split the 128-bit number into four 32-bit chunks (A3, A2, A1, A0)
+        long a3 = hi >>> 32;
+        long a2 = hi & 0xFFFFFFFFL;
+        long a1 = lo >>> 32;
+        long a0 = lo & 0xFFFFFFFFL;
 
-        long cHi = hi, cLo = lo;
+        long rem = 0L;
 
-        while (cHi != 0 || cLo != 0) {
+        // Process each chunk from highest to lowest
+        long chunk3 = (rem << 32) | a3;
+        long q3 = Long.divideUnsigned(chunk3, d);
+        rem = Long.remainderUnsigned(chunk3, d);
 
-            // Decompose into four unsigned 32-bit limbs, most-significant first.
-            long a3 = cHi >>> 32,   a2 = cHi & M32;
-            long a1 = cLo >>> 32,   a0 = cLo & M32;
+        long chunk2 = (rem << 32) | a2;
+        long q2 = Long.divideUnsigned(chunk2, d);
+        rem = Long.remainderUnsigned(chunk2, d);
 
-            // --- base-2^32 long division by 10 ---
-            // n = (remainder_from_previous_limb << 32) | current_limb
-            // n is always < 10 * 2^32 < 2^36, so it fits in a positive long.
-            long n, r, q3, q2, q1, q0;
+        long chunk1 = (rem << 32) | a1;
+        long q1 = Long.divideUnsigned(chunk1, d);
+        rem = Long.remainderUnsigned(chunk1, d);
 
-            n = a3;                 q3 = n / 10;  r = n % 10;
-            n = (r << 32) | a2;     q2 = n / 10;  r = n % 10;
-            n = (r << 32) | a1;     q1 = n / 10;  r = n % 10;
-            n = (r << 32) | a0;     q0 = n / 10;  r = n % 10;
+        long chunk0 = (rem << 32) | a0;
+        long q0 = Long.divideUnsigned(chunk0, d);
+        rem = Long.remainderUnsigned(chunk0, d);
 
-            buf[--pos] = (char) ('0' + r);    // lowest decimal digit of current value
-            cHi = (q3 << 32) | q2;
-            cLo = (q1 << 32) | q0;
-        }
+        // Reassemble the quotient back into two 64-bit longs
+        long qHi = (q3 << 32) | (q2 & 0xFFFFFFFFL);
+        long qLo = (q1 << 32) | (q0 & 0xFFFFFFFFL);
 
-        return new String(buf, pos, 39 - pos);
+        return new long[]{qHi, qLo, rem};
     }
 }
