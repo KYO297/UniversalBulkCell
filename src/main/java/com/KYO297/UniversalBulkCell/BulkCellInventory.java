@@ -3,26 +3,30 @@ package com.KYO297.UniversalBulkCell;
 import appeng.api.config.Actionable;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.AEKey;
+import appeng.api.stacks.GenericStack;
 import appeng.api.stacks.KeyCounter;
 import appeng.api.storage.cells.CellState;
 import appeng.api.storage.cells.ISaveProvider;
 import appeng.api.storage.cells.StorageCell;
 import appeng.core.definitions.AEItems;
+import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import org.slf4j.Logger;
 
 public class BulkCellInventory implements StorageCell {
-    private final UInt128 counter;
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private final UInt128 storage;
     private final ItemStack cellStack;
     private final BulkCellItem cellItem;
     private final ISaveProvider host;
     private final String storageKeyTag = "key";
     private final String amtHiTag = "hi";
     private final String amtLoTag = "lo";
+    private final boolean voidCardInstalled;
     private AEKey storageKey;
     private AEKey filterKey;
     private boolean isPersisted = true;
-    private boolean voidCardInstalled = false;
 
 
     public BulkCellInventory(ItemStack is, ISaveProvider host) {
@@ -36,17 +40,37 @@ public class BulkCellInventory implements StorageCell {
             storageKey = AEKey.fromTagGeneric(tag.getCompound(storageKeyTag));
             final long hi = tag.getLong(amtHiTag);
             final long lo = tag.getLong(amtLoTag);
-            counter = new UInt128(hi, lo);
+            storage = new UInt128(hi, lo);
         } else {
             storageKey = null;
-            counter = new UInt128();
+            storage = new UInt128();
         }
+    }
+
+    public AEKey getStorageKey() {
+        return storageKey;
+    }
+
+    public AEKey getFilterKey() {
+        return filterKey;
+    }
+
+    public boolean isFilterMismatched() {
+        return storageKey != null && !storageKey.equals(filterKey);
+    }
+
+    public boolean isNew() {
+        return storageKey == null && filterKey == null;
+    }
+
+    public boolean isPreFiltered() {
+        return storageKey == null && filterKey != null;
     }
 
     @Override
     public CellState getStatus() {
-        if (counter.isEmpty()) return CellState.EMPTY;
-        if (counter.isFull() || isFilterMismatched()) return CellState.FULL;
+        if (storage.isEmpty()) return CellState.EMPTY;
+        if (storage.isFull() || isFilterMismatched()) return CellState.FULL;
         return CellState.NOT_EMPTY;
     }
 
@@ -56,14 +80,19 @@ public class BulkCellInventory implements StorageCell {
     }
 
     @Override
+    public boolean canFitInsideCell() {
+        return storage.isEmpty();
+    }
+
+    @Override
     public void persist() {
         if (isPersisted) return;
 
         var tag = cellStack.getOrCreateTag();
         if (storageKey != null) {
             tag.put(storageKeyTag, storageKey.toTagGeneric());
-            tag.putLong(amtHiTag, counter.getHi());
-            tag.putLong(amtLoTag, counter.getLo());
+            tag.putLong(amtHiTag, storage.getHi());
+            tag.putLong(amtLoTag, storage.getLo());
         } else {
             tag.remove(storageKeyTag);
             tag.remove(amtHiTag);
@@ -83,32 +112,36 @@ public class BulkCellInventory implements StorageCell {
 
     @Override
     public boolean isPreferredStorageFor(AEKey what, IActionSource source) {
-        if (filterKey == null || isFilterMismatched()) return false;
-        return filterKey.equals(what);
+        if (filterKey == null) {
+            if (storageKey == null || what == null) return false;
+            else return what.equals(storageKey);
+        }
+        if (isFilterMismatched()) return false;
+        else return what.equals(filterKey);
     }
 
     @Override
     public long insert(AEKey what, long amount, Actionable mode, IActionSource source) {
-        if (!what.equals(filterKey) || isFilterMismatched()) return 0;
+        if ((filterKey != null && !what.equals(filterKey)) || isFilterMismatched()) return 0;
 
         switch (mode) {
             case MODULATE -> {
                 if (storageKey == null) {
                     storageKey = what;
                     filterKey = what;
-                    // TODO set item in filter slot (how?)
+                    cellItem.getConfigInventory(cellStack).setStack(0, new GenericStack(what, 1));
                 }
-                final long ret = counter.insert(amount, false);
+                final long ret = storage.insert(amount, false);
                 saveChanges();
                 if (voidCardInstalled) return amount;
                 return ret;
             }
             case SIMULATE -> {
                 if (voidCardInstalled) return amount;
-                return counter.insert(amount, true);
+                return storage.insert(amount, true);
             }
             default -> {
-                // TODO log warn unknown mode (or ignore?)
+                LOGGER.warn("Attempted to insert with an unknown or null Actionable mode: {}. No action taken.", mode);
                 return 0;
             }
         }
@@ -120,16 +153,16 @@ public class BulkCellInventory implements StorageCell {
 
         switch (mode) {
             case MODULATE -> {
-                final long ret = counter.extract(amount, false);
-                if (counter.isEmpty()) storageKey = null;
+                final long ret = storage.extract(amount, false);
+                if (storage.isEmpty()) storageKey = null;
                 saveChanges();
                 return ret;
             }
             case SIMULATE -> {
-                return counter.extract(amount, true);
+                return storage.extract(amount, true);
             }
             default -> {
-                // TODO log warn
+                LOGGER.warn("Attempted to extract with an unknown or null Actionable mode: {}. No action taken.", mode);
                 return 0;
             }
         }
@@ -137,7 +170,7 @@ public class BulkCellInventory implements StorageCell {
 
     @Override
     public void getAvailableStacks(KeyCounter out) {
-        if (storageKey != null) out.add(storageKey, counter.longValue());
+        if (storageKey != null) out.add(storageKey, storage.longValue());
     }
 
     @Override
@@ -149,19 +182,14 @@ public class BulkCellInventory implements StorageCell {
 
     @Override
     public Component getDescription() {
-        // TODO
-        return null;
-    }
-
-    private boolean isFilterMismatched() {
-        return storageKey != null && !storageKey.equals(filterKey);
+        return cellStack.getHoverName();
     }
 
     // STRING CONVERSIONS
 
     public String toExactString() {
         if (storageKey == null) return "0";
-        final long[] div = counter.divideByInt(storageKey.getAmountPerUnit());
+        final long[] div = storage.divideByInt(storageKey.getAmountPerUnit());
         final long hi = div[0];
         final long lo = div[1];
         final double rem = (double) div[2] / storageKey.getAmountPerUnit();
@@ -176,18 +204,29 @@ public class BulkCellInventory implements StorageCell {
         while (cHi != 0 || cLo != 0) {
 
             // Decompose into four unsigned 32-bit limbs, most-significant first.
-            long a3 = cHi >>> 32,   a2 = cHi & M32;
-            long a1 = cLo >>> 32,   a0 = cLo & M32;
+            long a3 = cHi >>> 32, a2 = cHi & M32;
+            long a1 = cLo >>> 32, a0 = cLo & M32;
 
             // --- base-2^32 long division by 10 ---
             // n = (remainder_from_previous_limb << 32) | current_limb
             // n is always < 10 * 2^32 < 2^36, so it fits in a positive long.
             long n, r, q3, q2, q1, q0;
 
-            n = a3;                 q3 = n / 10;  r = n % 10;
-            n = (r << 32) | a2;     q2 = n / 10;  r = n % 10;
-            n = (r << 32) | a1;     q1 = n / 10;  r = n % 10;
-            n = (r << 32) | a0;     q0 = n / 10;  r = n % 10;
+            n = a3;
+            q3 = n / 10;
+            r = n % 10;
+
+            n = (r << 32) | a2;
+            q2 = n / 10;
+            r = n % 10;
+
+            n = (r << 32) | a1;
+            q1 = n / 10;
+            r = n % 10;
+
+            n = (r << 32) | a0;
+            q0 = n / 10;
+            r = n % 10;
 
             buf[--pos] = (char) ('0' + r);    // lowest decimal digit of current value
             cHi = (q3 << 32) | q2;
@@ -213,7 +252,7 @@ public class BulkCellInventory implements StorageCell {
             }
         }
 
-        String ret = MetricFormatter.formatMetric(counter.doubleValue() / storageKey.getAmountPerUnit());
+        String ret = MetricFormatter.formatMetric(storage.doubleValue() / storageKey.getAmountPerUnit());
 
         if (Character.isDigit(ret.charAt(ret.length() - 1))) {
             ret = appendUnit(ret);
@@ -255,10 +294,6 @@ public class BulkCellInventory implements StorageCell {
         }
 
         private static String formatDirect(double value) {
-            if (value == 0.0) {
-                return "0";
-            }
-
             // 1. Calculate engineering exponent bucket (index into lookup tables)
             int prefixIndex = (int) Math.floor(Math.log10(value) / 3.0) + ZERO_INDEX;
 

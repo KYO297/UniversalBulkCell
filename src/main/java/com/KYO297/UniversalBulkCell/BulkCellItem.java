@@ -1,6 +1,7 @@
 package com.KYO297.UniversalBulkCell;
 
 import appeng.api.config.FuzzyMode;
+import appeng.api.stacks.AEKey;
 import appeng.api.storage.StorageCells;
 import appeng.api.storage.cells.ICellHandler;
 import appeng.api.storage.cells.ICellWorkbenchItem;
@@ -11,8 +12,14 @@ import appeng.api.upgrades.UpgradeInventories;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
 import appeng.util.ConfigInventory;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
     private static final ICellHandler HANDLER = new BulkCellHandler();
@@ -27,17 +34,35 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
 
     @Override
     public ConfigInventory getConfigInventory(ItemStack is) {
-        // TODO check if correct
         return CellConfig.create(null, is, 1);
     }
 
     @Override
     public IUpgradeInventory getUpgrades(ItemStack is) {
-        // TODO check if correct (only want void card allowed - how?)
+        // TODO only want void card allowed - how?
         return UpgradeInventories.forItem(is, 1);
     }
 
-    // TODO tooltip display amount
+    @Override
+    @ParametersAreNonnullByDefault
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> lines, TooltipFlag advancedTooltips) {
+        final BulkCellInventory inv = (BulkCellInventory) HANDLER.getCellInventory(stack, null);
+        if (inv == null) return;
+
+        if (inv.isNew()) {
+        } // TODO EMPTY
+        if (inv.isPreFiltered()) {
+        } // TODO EMPTY BUT FILTERED
+
+        if (inv.isFilterMismatched()) {
+        } // TODO show error
+
+        AEKey stored = inv.getStorageKey();
+        AEKey filter = inv.getFilterKey();
+
+        // TODO display stored amount
+
+    }
 
     @Override
     public FuzzyMode getFuzzyMode(ItemStack is) {
@@ -48,7 +73,6 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
     public void setFuzzyMode(ItemStack is, FuzzyMode fzMode) {
     }
 
-    // TODO handler copied from mega item bulk cell - correct?
     public static class BulkCellHandler implements ICellHandler {
         private BulkCellHandler() {
         }
