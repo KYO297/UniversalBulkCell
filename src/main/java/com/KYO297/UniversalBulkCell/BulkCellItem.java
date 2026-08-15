@@ -39,7 +39,6 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
 
     @Override
     public IUpgradeInventory getUpgrades(ItemStack is) {
-        // TODO only want void card allowed - how?
         return UpgradeInventories.forItem(is, 1);
     }
 
@@ -49,19 +48,15 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
         final BulkCellInventory inv = (BulkCellInventory) HANDLER.getCellInventory(stack, null);
         if (inv == null) return;
 
-        if (inv.isNew()) {
-        } // TODO EMPTY
-        if (inv.isPreFiltered()) {
-        } // TODO EMPTY BUT FILTERED
+        if (inv.isNew()) {// TODO EMPTY
+        } else if (inv.isPreFiltered()) {// TODO EMPTY BUT FILTERED
+        } else if (inv.isFilterMismatched()) {// TODO show error
+        } else {
+            AEKey stored = inv.getStorageKey();
+            AEKey filter = inv.getFilterKey();
 
-        if (inv.isFilterMismatched()) {
-        } // TODO show error
-
-        AEKey stored = inv.getStorageKey();
-        AEKey filter = inv.getFilterKey();
-
-        // TODO display stored amount
-
+            // TODO display stored amount, metric default, exact on shift
+        }
     }
 
     @Override
