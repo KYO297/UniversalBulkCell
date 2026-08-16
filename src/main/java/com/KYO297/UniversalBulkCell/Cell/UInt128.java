@@ -1,10 +1,8 @@
-package com.KYO297.UniversalBulkCell;
-
-import java.math.BigInteger;
+package com.KYO297.UniversalBulkCell.Cell;
 
 public class UInt128 extends Number {
-    private long hi = 0;
-    private long lo = 0;
+    private long hi;
+    private long lo;
 
     public UInt128(long hi, long lo) {
         this.hi = hi;
@@ -12,15 +10,6 @@ public class UInt128 extends Number {
     }
 
     public UInt128() {
-    }
-
-    private static void longToByteArr(long val, byte[] ret, int start) {
-        int idx = start + 7;
-        while (val != 0) {
-            ret[idx] = (byte) val;
-            val = val >>> 8;
-            idx--;
-        }
     }
 
     public long insert(long amount, boolean simulate) {
@@ -100,14 +89,6 @@ public class UInt128 extends Number {
         return Integer.MAX_VALUE;
     }
 
-    public BigInteger toBigInteger() {
-        if (isLong()) return BigInteger.valueOf(lo);
-        final byte[] ret = new byte[16];
-        longToByteArr(hi, ret, 0);
-        longToByteArr(lo, ret, 8);
-        return new BigInteger(1, ret);
-    }
-
     public long getHi() {
         return hi;
     }
@@ -133,36 +114,33 @@ public class UInt128 extends Number {
     }
 
     public long[] divideByInt(int divisor) {
-        long d = Integer.toUnsignedLong(divisor);
+        final long d = Integer.toUnsignedLong(divisor);
 
-        // Split the 128-bit number into four 32-bit chunks (A3, A2, A1, A0)
-        long a3 = hi >>> 32;
-        long a2 = hi & 0xFFFFFFFFL;
-        long a1 = lo >>> 32;
-        long a0 = lo & 0xFFFFFFFFL;
+        final long a3 = hi >>> 32;
+        final long a2 = hi & 0xFFFFFFFFL;
+        final long a1 = lo >>> 32;
+        final long a0 = lo & 0xFFFFFFFFL;
 
-        long rem = 0L;
+        long rem;
 
-        // Process each chunk from highest to lowest
-        long chunk3 = (rem << 32) | a3;
-        long q3 = Long.divideUnsigned(chunk3, d);
+        final long chunk3 = a3;
+        final long q3 = Long.divideUnsigned(chunk3, d);
         rem = Long.remainderUnsigned(chunk3, d);
 
-        long chunk2 = (rem << 32) | a2;
-        long q2 = Long.divideUnsigned(chunk2, d);
+        final long chunk2 = (rem << 32) | a2;
+        final long q2 = Long.divideUnsigned(chunk2, d);
         rem = Long.remainderUnsigned(chunk2, d);
 
-        long chunk1 = (rem << 32) | a1;
-        long q1 = Long.divideUnsigned(chunk1, d);
+        final long chunk1 = (rem << 32) | a1;
+        final long q1 = Long.divideUnsigned(chunk1, d);
         rem = Long.remainderUnsigned(chunk1, d);
 
-        long chunk0 = (rem << 32) | a0;
-        long q0 = Long.divideUnsigned(chunk0, d);
+        final long chunk0 = (rem << 32) | a0;
+        final long q0 = Long.divideUnsigned(chunk0, d);
         rem = Long.remainderUnsigned(chunk0, d);
 
-        // Reassemble the quotient back into two 64-bit longs
-        long qHi = (q3 << 32) | (q2 & 0xFFFFFFFFL);
-        long qLo = (q1 << 32) | (q0 & 0xFFFFFFFFL);
+        final long qHi = (q3 << 32) | (q2 & 0xFFFFFFFFL);
+        final long qLo = (q1 << 32) | (q0 & 0xFFFFFFFFL);
 
         return new long[]{qHi, qLo, rem};
     }

@@ -1,7 +1,6 @@
-package com.KYO297.UniversalBulkCell;
+package com.KYO297.UniversalBulkCell.Cell;
 
 import appeng.api.config.FuzzyMode;
-import appeng.api.stacks.AEKey;
 import appeng.api.storage.StorageCells;
 import appeng.api.storage.cells.ICellHandler;
 import appeng.api.storage.cells.ICellWorkbenchItem;
@@ -12,6 +11,8 @@ import appeng.api.upgrades.UpgradeInventories;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
 import appeng.util.ConfigInventory;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -44,18 +45,33 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
 
     @Override
     @ParametersAreNonnullByDefault
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> lines, TooltipFlag advancedTooltips) {
-        final BulkCellInventory inv = (BulkCellInventory) HANDLER.getCellInventory(stack, null);
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag advancedTooltips) {
+        BulkCellInventory inv = (BulkCellInventory) HANDLER.getCellInventory(stack, null);
         if (inv == null) return;
 
-        if (inv.isNew()) {// TODO EMPTY
-        } else if (inv.isPreFiltered()) {// TODO EMPTY BUT FILTERED
-        } else if (inv.isFilterMismatched()) {// TODO show error
-        } else {
-            AEKey stored = inv.getStorageKey();
-            AEKey filter = inv.getFilterKey();
+        boolean detailed = Screen.hasShiftDown();
 
-            // TODO display stored amount, metric default, exact on shift
+        if (inv.isNew()) {
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.empty"));
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.locks_on_insert"));
+            return;
+        }
+
+        if (inv.isPreFiltered()) {
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.contents", inv.getFilterKey().getDisplayName()));
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.quantity", detailed ? inv.toExactString() : inv.toMetricString()));
+            return;
+        }
+
+        tooltip.add(Component.translatable("tooltip.universalbulkcell.contents", inv.getStorageKey().getDisplayName()));
+        tooltip.add(Component.translatable("tooltip.universalbulkcell.quantity", detailed ? inv.toExactString() : inv.toMetricString()));
+
+        if (detailed) {
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.percentage_filled", inv.percentageFilled()));
+        }
+
+        if (inv.isFilterMismatched()) {
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.filter_mismatch").withStyle(ChatFormatting.RED));
         }
     }
 

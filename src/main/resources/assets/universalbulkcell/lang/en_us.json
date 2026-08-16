@@ -1,0 +1,11 @@
+{
+  "item.universalbulkcell.universal_bulk_cell": "Universal Bulk Cell",
+  "item.universalbulkcell.universal_bulk_cell_housing": "Universal Bulk Cell Housing",
+  "item.universalbulkcell.universal_bulk_cell_component": "Universal Bulk Cell Component",
+  "tooltip.universalbulkcell.empty": "EMPTY",
+  "tooltip.universalbulkcell.contents": "Contains: %s",
+  "tooltip.universalbulkcell.quantity": "Quantity: %s",
+  "tooltip.universalbulkcell.locks_on_insert": "Unpartitioned - will lock onto the first thing inserted\nFilter can be edited in the Cell Workbench",
+  "tooltip.universalbulkcell.filter_mismatch": "Filter doesn't match cell contents! Insertion blocked!",
+  "tooltip.universalbulkcell.percentage_filled": "%s filled"
+}

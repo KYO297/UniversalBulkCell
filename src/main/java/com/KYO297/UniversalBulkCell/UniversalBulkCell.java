@@ -2,6 +2,7 @@ package com.KYO297.UniversalBulkCell;
 
 import appeng.api.upgrades.Upgrades;
 import appeng.core.definitions.AEItems;
+import com.KYO297.UniversalBulkCell.Cell.BulkCellItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;

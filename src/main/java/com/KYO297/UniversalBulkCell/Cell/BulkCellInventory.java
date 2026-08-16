@@ -1,4 +1,4 @@
-package com.KYO297.UniversalBulkCell;
+package com.KYO297.UniversalBulkCell.Cell;
 
 import appeng.api.config.Actionable;
 import appeng.api.networking.security.IActionSource;
@@ -9,6 +9,9 @@ import appeng.api.storage.cells.CellState;
 import appeng.api.storage.cells.ISaveProvider;
 import appeng.api.storage.cells.StorageCell;
 import appeng.core.definitions.AEItems;
+import com.KYO297.UniversalBulkCell.StringFormatting.ExactFormatter;
+import com.KYO297.UniversalBulkCell.StringFormatting.MetricFormatter;
+import com.KYO297.UniversalBulkCell.StringFormatting.PercentageFormatter;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -112,11 +115,7 @@ public class BulkCellInventory implements StorageCell {
 
     @Override
     public boolean isPreferredStorageFor(AEKey what, IActionSource source) {
-        if (filterKey == null) {
-            if (storageKey == null || what == null) return false;
-            else return what.equals(storageKey);
-        }
-        if (isFilterMismatched()) return false;
+        if (filterKey == null || isFilterMismatched() || what == null) return false;
         else return what.equals(filterKey);
     }
 
@@ -185,74 +184,30 @@ public class BulkCellInventory implements StorageCell {
         return cellStack.getHoverName();
     }
 
-    // STRING CONVERSIONS
-
     public String toExactString() {
-        if (storageKey == null) return "0";
+        if (storageKey == null) return appendUnit("0");
         final long[] div = storage.divideByInt(storageKey.getAmountPerUnit());
         final long hi = div[0];
         final long lo = div[1];
         final double rem = (double) div[2] / storageKey.getAmountPerUnit();
+
         if (hi == 0 && lo >= 0 && rem == 0) return appendUnit(Long.toString(lo));
 
-        final long M32 = 0xFFFFFFFFL;   // isolates the low 32 bits as unsigned
-        char[] buf = new char[39];      // 2^128 − 1 has 39 decimal digits
-        int pos = 39;
-
-        long cHi = hi, cLo = lo;
-
-        while (cHi != 0 || cLo != 0) {
-
-            // Decompose into four unsigned 32-bit limbs, most-significant first.
-            long a3 = cHi >>> 32, a2 = cHi & M32;
-            long a1 = cLo >>> 32, a0 = cLo & M32;
-
-            // --- base-2^32 long division by 10 ---
-            // n = (remainder_from_previous_limb << 32) | current_limb
-            // n is always < 10 * 2^32 < 2^36, so it fits in a positive long.
-            long n, r, q3, q2, q1, q0;
-
-            n = a3;
-            q3 = n / 10;
-            r = n % 10;
-
-            n = (r << 32) | a2;
-            q2 = n / 10;
-            r = n % 10;
-
-            n = (r << 32) | a1;
-            q1 = n / 10;
-            r = n % 10;
-
-            n = (r << 32) | a0;
-            q0 = n / 10;
-            r = n % 10;
-
-            buf[--pos] = (char) ('0' + r);    // lowest decimal digit of current value
-            cHi = (q3 << 32) | q2;
-            cLo = (q1 << 32) | q0;
-        }
-
-        String ret = new String(buf, pos, 39 - pos);
+        String ret = ExactFormatter.format(new UInt128(hi, lo));
 
         if (rem != 0) {
             final int digits = (int) Math.ceil(Math.log10(storageKey.getAmountPerUnit()));
-            ret = ret + String.format("%." + digits + "f", rem).substring(1);
+            String format = "%." + digits + "f";
+            ret = ret + String.format(format, rem).substring(1);
         }
 
         return appendUnit(ret);
     }
 
     public String toMetricString() {
-        if (storageKey == null) {
-            if (filterKey != null) {
-                return appendUnit("0");
-            } else {
-                return "Empty";
-            }
-        }
+        if (storageKey == null && filterKey != null) return appendUnit("0");
 
-        String ret = MetricFormatter.formatMetric(storage.doubleValue() / storageKey.getAmountPerUnit());
+        String ret = MetricFormatter.format(storage.doubleValue() / storageKey.getAmountPerUnit());
 
         if (Character.isDigit(ret.charAt(ret.length() - 1))) {
             ret = appendUnit(ret);
@@ -263,94 +218,13 @@ public class BulkCellInventory implements StorageCell {
         return ret;
     }
 
+    public String percentageFilled() {
+        return PercentageFormatter.format(storage.fillPercentage());
+    }
+
     private String appendUnit(String s) {
         String unitSymbol = storageKey != null ? storageKey.getUnitSymbol() : null;
         if (unitSymbol == null || unitSymbol.isEmpty()) return s;
         return s + " " + unitSymbol;
-    }
-
-    private static class MetricFormatter {
-        private static final String[] PREFIXES = {"y", "z", "a", "f", "p", "n", "µ", "m", "", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q"};
-
-        private static final double[] POWERS_OF_10 = {1e-24, 1e-21, 1e-18, 1e-15, 1e-12, 1e-9, 1e-6, 1e-3, 1.0, 1e3, 1e6, 1e9, 1e12, 1e15, 1e18, 1e21, 1e24, 1e27, 1e30};
-
-        private static final int ZERO_INDEX = 8;
-        private static final int MAX_INDEX = PREFIXES.length - 1;
-
-        private static final ThreadLocal<CacheState> CACHE = ThreadLocal.withInitial(CacheState::new);
-
-        private static String formatMetric(double value) {
-            CacheState cache = CACHE.get();
-
-            if (value == cache.lastValue) {
-                return cache.lastResult;
-            }
-
-            String result = formatDirect(value);
-
-            cache.lastValue = value;
-            cache.lastResult = result;
-            return result;
-        }
-
-        private static String formatDirect(double value) {
-            // 1. Calculate engineering exponent bucket (index into lookup tables)
-            int prefixIndex = (int) Math.floor(Math.log10(value) / 3.0) + ZERO_INDEX;
-
-            // Clamp to available SI prefix array bounds
-            if (prefixIndex < 0) prefixIndex = 0;
-            else if (prefixIndex > MAX_INDEX) prefixIndex = MAX_INDEX;
-
-            double scaled = value / POWERS_OF_10[prefixIndex];
-
-            // 2. Handle rounding boundary edge cases (e.g. 999.6 -> 1.00 k)
-            if (scaled >= 999.5 && prefixIndex < MAX_INDEX) {
-                scaled /= 1000.0;
-                prefixIndex++;
-            }
-
-            // 3. Fast char array construction (no String.format, no StringBuilder)
-            char[] buf = new char[8];
-            int len;
-
-            if (scaled >= 99.5) {
-                // Pattern: DDD (e.g., 100, 150, 999)
-                long val = Math.round(scaled);
-                buf[0] = (char) ('0' + (val / 100));
-                buf[1] = (char) ('0' + ((val / 10) % 10));
-                buf[2] = (char) ('0' + (val % 10));
-                len = 3;
-            } else if (scaled >= 9.95) {
-                // Pattern: DD.D (e.g., 15.0, 99.5)
-                long val = Math.round(scaled * 10.0);
-                buf[0] = (char) ('0' + (val / 100));
-                buf[1] = (char) ('0' + ((val / 10) % 10));
-                buf[2] = '.';
-                buf[3] = (char) ('0' + (val % 10));
-                len = 4;
-            } else {
-                // Pattern: D.DD (e.g., 1.23, 1.00)
-                long val = Math.round(scaled * 100.0);
-                buf[0] = (char) ('0' + (val / 100));
-                buf[1] = '.';
-                buf[2] = (char) ('0' + ((val / 10) % 10));
-                buf[3] = (char) ('0' + (val % 10));
-                len = 4;
-            }
-
-            // 4. Append SI prefix character directly
-            String prefix = PREFIXES[prefixIndex];
-            if (!prefix.isEmpty()) {
-                buf[len++] = ' ';
-                buf[len++] = prefix.charAt(0);
-            }
-
-            return new String(buf, 0, len);
-        }
-
-        private static class CacheState {
-            double lastValue = 0;
-            String lastResult = "0";
-        }
     }
 }
