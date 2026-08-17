@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GFG",
+    "FCF",
+    "NNN"
+  ],
+  "key": {
+    "C": {
+      "item": "universalbulkcell:universal_bulk_component"
+    },
+    "G": {
+      "item": "ae2:quartz_glass"
+    },
+    "F": {
+      "item": "ae2:fluix_dust"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    }
+  },
+  "result": {
+    "item": "universalbulkcell:universal_bulk_cell"
+  }
+}

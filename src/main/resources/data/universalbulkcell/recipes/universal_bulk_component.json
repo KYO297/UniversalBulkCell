@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "APA",
+    "CSC",
+    "ALA"
+  ],
+  "key": {
+    "S": {
+      "item": "ae2:singularity"
+    },
+    "C": {
+      "item": "ae2:cell_component_256k"
+    },
+    "P": {
+      "item": "ae2:engineering_processor"
+    },
+    "L": {
+      "item": "ae2:spatial_cell_component_128"
+    },
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    }
+  },
+  "result": {
+    "item": "universalbulkcell:universal_bulk_component"
+  }
+}

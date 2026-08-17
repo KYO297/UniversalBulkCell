@@ -60,6 +60,9 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
         if (inv.isPreFiltered()) {
             tooltip.add(Component.translatable("tooltip.universalbulkcell.contents", inv.getFilterKey().getDisplayName()));
             tooltip.add(Component.translatable("tooltip.universalbulkcell.quantity", detailed ? inv.toExactString() : inv.toMetricString()));
+            if (detailed) {
+                tooltip.add(Component.translatable("tooltip.universalbulkcell.percentage_filled", inv.percentageFilled()));
+            }
             return;
         }
 

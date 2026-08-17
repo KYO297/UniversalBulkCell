@@ -223,7 +223,9 @@ public class BulkCellInventory implements StorageCell {
     }
 
     private String appendUnit(String s) {
-        String unitSymbol = storageKey != null ? storageKey.getUnitSymbol() : null;
+        String unitSymbol = null;
+        if (storageKey != null) unitSymbol = storageKey.getUnitSymbol();
+        else if (filterKey != null) unitSymbol = filterKey.getUnitSymbol();
         if (unitSymbol == null || unitSymbol.isEmpty()) return s;
         return s + " " + unitSymbol;
     }
