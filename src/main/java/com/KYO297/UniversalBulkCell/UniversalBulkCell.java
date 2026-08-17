@@ -1,8 +1,10 @@
 package com.KYO297.UniversalBulkCell;
 
+import appeng.api.client.StorageCellModels;
 import appeng.api.upgrades.Upgrades;
 import appeng.core.definitions.AEItems;
 import com.KYO297.UniversalBulkCell.Cell.BulkCellItem;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -29,6 +31,7 @@ public class UniversalBulkCell {
         event.enqueueWork(() -> {
             BulkCellItem.registerHandler();
             Upgrades.add(AEItems.VOID_CARD, CELL.get(), 1);
+            StorageCellModels.registerModel(CELL.get(), ResourceLocation.fromNamespaceAndPath(MODID, "block/drive_cell"));
         });
     }
 }
