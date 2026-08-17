@@ -1,10 +1,12 @@
 {
   "item.universalbulkcell.universal_bulk_cell": "Universal Bulk Storage Cell",
   "item.universalbulkcell.universal_bulk_component": "Universal Bulk Storage Component",
+  "itemGroup.universalbulkcell": "Universal Bulk Cell",
   "tooltip.universalbulkcell.empty": "EMPTY",
   "tooltip.universalbulkcell.contents": "Contains: %s",
   "tooltip.universalbulkcell.quantity": "Quantity: %s",
-  "tooltip.universalbulkcell.locks_on_insert": "Unpartitioned - will lock onto the first thing inserted\nFilter can be edited in the Cell Workbench",
+  "tooltip.universalbulkcell.locks_on_insert": "Unpartitioned - will lock onto the first thing inserted",
+  "tooltip.universalbulkcell.editable": "Filter can be edited in the Cell Workbench",
   "tooltip.universalbulkcell.filter_mismatch": "Filter doesn't match cell contents! Insertion blocked!",
   "tooltip.universalbulkcell.percentage_filled": "%s filled"
 }

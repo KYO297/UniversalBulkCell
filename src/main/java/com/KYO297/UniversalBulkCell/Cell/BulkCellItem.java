@@ -54,6 +54,7 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
         if (inv.isNew()) {
             tooltip.add(Component.translatable("tooltip.universalbulkcell.empty"));
             tooltip.add(Component.translatable("tooltip.universalbulkcell.locks_on_insert"));
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.editable"));
             return;
         }
 
