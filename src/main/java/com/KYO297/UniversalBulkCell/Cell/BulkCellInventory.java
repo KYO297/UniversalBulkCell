@@ -115,7 +115,7 @@ public class BulkCellInventory implements StorageCell {
 
     @Override
     public boolean isPreferredStorageFor(AEKey what, IActionSource source) {
-        if (filterKey == null || isFilterMismatched() || what == null) return false;
+        if (isFilterMismatched() || what == null) return false;
         else return what.equals(filterKey);
     }
 
