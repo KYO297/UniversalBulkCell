@@ -227,6 +227,6 @@ public class BulkCellInventory implements StorageCell {
         if (storageKey != null) unitSymbol = storageKey.getUnitSymbol();
         else if (filterKey != null) unitSymbol = filterKey.getUnitSymbol();
         if (unitSymbol == null || unitSymbol.isEmpty()) return s;
-        return s + " " + unitSymbol;
+        else return s + " " + unitSymbol;
     }
 }
