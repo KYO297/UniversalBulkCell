@@ -9,6 +9,8 @@ public abstract class MetricFormatter {
     private static final int MAX_INDEX = PREFIXES.length - 1;
 
     public static String format(double value) {
+        if (value == 0) return "0";
+
         int prefixIndex = (int) Math.floor(Math.log10(value) / 3.0) + ZERO_INDEX;
 
         if (prefixIndex < 0) prefixIndex = 0;

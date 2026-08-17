@@ -8,5 +8,6 @@
   "tooltip.universalbulkcell.locks_on_insert": "Unpartitioned - will lock onto the first thing inserted",
   "tooltip.universalbulkcell.editable": "Filter can be edited in the Cell Workbench",
   "tooltip.universalbulkcell.filter_mismatch": "Filter doesn't match cell contents! Insertion blocked!",
-  "tooltip.universalbulkcell.percentage_filled": "%s filled"
+  "tooltip.universalbulkcell.percentage_filled": "%s filled",
+  "tooltip.universalbulkcell.details": "Hold shift for details"
 }

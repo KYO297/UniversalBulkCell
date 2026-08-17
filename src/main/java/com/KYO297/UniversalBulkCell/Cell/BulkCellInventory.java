@@ -191,8 +191,6 @@ public class BulkCellInventory implements StorageCell {
         final long lo = div[1];
         final double rem = (double) div[2] / storageKey.getAmountPerUnit();
 
-        if (hi == 0 && lo >= 0 && rem == 0) return appendUnit(Long.toString(lo));
-
         String ret = ExactFormatter.format(new UInt128(hi, lo));
 
         if (rem != 0) {

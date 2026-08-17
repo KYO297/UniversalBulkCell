@@ -15,18 +15,20 @@ It features automatic filtering logic - an empty cell will automatically lock on
 
 Should the stored amount exceed AE2's display limit (9.2 × 10¹⁸), the full amount is displayed in the item tooltip.
 
+<br/>
 
-#### vs MEGA Bulk Item Storage Cell
+### Universal Bulk Storage Cell vs MEGA Bulk Item Storage Cell
 
-Advantages:
+#### Advantages:
 1. The Universal Cell can store any type, not just items.
 2. The cell automatically filters itself to the first item inserted, there's no need to manually set the filter on each cell when they're used on a subnet where every item is stored in bulk cells.
 3. Doesn't use Java's BigInteger class - minimized impact on performance
 
-Disadvantages:
+#### Disadvantages:
 1. The capacity is technically not infinite (though not realistically fillable)
 2. There's no compression card (and it is not planned to be added)
 
+<br/>
 
 #### Licensing
 Assets in this mod are derived from Applied Energistics 2 (Copyright AlgorithmX2 and contributors), licensed under CC BY-NC-SA 3.0.
@@ -34,6 +36,7 @@ These derived assets are released under the same license.
 
 As portions of the code are inspired by/derived from AE2's own code, this mod's code is also licensed under LGPLv3 - see LICENSE.
 
+<br/>
 
 #### AI Use Disclaimer
 As this is my first modding project, I have extensively used LLMs to understand Forge's and AE2's API and code.

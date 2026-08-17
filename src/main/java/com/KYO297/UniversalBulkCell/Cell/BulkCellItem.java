@@ -58,20 +58,21 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
             return;
         }
 
+        Component contents = Component.literal(detailed ? inv.toExactString() : inv.toMetricString()).withStyle(ChatFormatting.BLUE);
+
         if (inv.isPreFiltered()) {
-            tooltip.add(Component.translatable("tooltip.universalbulkcell.contents", inv.getFilterKey().getDisplayName()));
-            tooltip.add(Component.translatable("tooltip.universalbulkcell.quantity", detailed ? inv.toExactString() : inv.toMetricString()));
-            if (detailed) {
-                tooltip.add(Component.translatable("tooltip.universalbulkcell.percentage_filled", inv.percentageFilled()));
-            }
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.contents", inv.getFilterKey().getDisplayName().copy().withStyle(ChatFormatting.BLUE)));
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.quantity", contents));
             return;
         }
 
-        tooltip.add(Component.translatable("tooltip.universalbulkcell.contents", inv.getStorageKey().getDisplayName()));
-        tooltip.add(Component.translatable("tooltip.universalbulkcell.quantity", detailed ? inv.toExactString() : inv.toMetricString()));
+        tooltip.add(Component.translatable("tooltip.universalbulkcell.contents", inv.getStorageKey().getDisplayName().copy().withStyle(ChatFormatting.BLUE)));
+        tooltip.add(Component.translatable("tooltip.universalbulkcell.quantity", contents));
 
         if (detailed) {
             tooltip.add(Component.translatable("tooltip.universalbulkcell.percentage_filled", inv.percentageFilled()));
+        } else {
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.details").withStyle(ChatFormatting.DARK_GRAY));
         }
 
         if (inv.isFilterMismatched()) {
