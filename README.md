@@ -1,7 +1,7 @@
 # Universal Bulk Storage Cell
 
 <div align="center">
-  <img src="https://github.com/KYO297/UniversalBulkCell/blob/master/icon.png" alt="UBSC" width=256>
+  <img src="https://raw.githubusercontent.com/KYO297/UniversalBulkCell/refs/heads/master/icon.png" alt="UBSC" width=256>
 </div>
 
 Universal Bulk Storage Cell is an add-on for [Applied Energistics 2](https://github.com/AppliedEnergistics/Applied-Energistics-2).
@@ -15,10 +15,10 @@ It features automatic filtering logic - an empty cell will automatically lock on
 
 Should the stored amount exceed AE2's display limit (9.2 × 10¹⁸), the full amount is displayed in the item tooltip.
 
+
 #### vs MEGA Bulk Item Storage Cell
 
 Advantages:
-
 1. The Universal Cell can store any type, not just items.
 2. The cell automatically filters itself to the first item inserted, there's no need to manually set the filter on each cell when they're used on a subnet where every item is stored in bulk cells.
 3. Doesn't use Java's BigInteger class - minimized impact on performance
@@ -26,6 +26,7 @@ Advantages:
 Disadvantages:
 1. The capacity is technically not infinite (though not realistically fillable)
 2. There's no compression card (and it is not planned to be added)
+
 
 #### Licensing
 Assets in this mod are derived from Applied Energistics 2 (Copyright AlgorithmX2 and contributors), licensed under CC BY-NC-SA 3.0.
