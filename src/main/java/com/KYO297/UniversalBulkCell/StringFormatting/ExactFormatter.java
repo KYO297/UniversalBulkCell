@@ -11,6 +11,8 @@ public abstract class ExactFormatter {
 
         long cHi = value.getHi(), cLo = value.getLo();
 
+        if (cHi == 0 && cLo == 0) return "0";
+
         while (cHi != 0 || cLo != 0) {
             if (pos % 4 == 1) buf[--pos] = ' ';
 

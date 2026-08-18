@@ -9,7 +9,7 @@ public abstract class MetricFormatter {
     private static final int MAX_INDEX = PREFIXES.length - 1;
 
     public static String format(double value) {
-        if (value == 0) return "0";
+        if (value < POWERS_OF_10[0] / 1e3) return "0";
 
         int prefixIndex = (int) Math.floor(Math.log10(value) / 3.0) + ZERO_INDEX;
 
@@ -23,10 +23,29 @@ public abstract class MetricFormatter {
             prefixIndex++;
         }
 
-        char[] buf = new char[8];
+        char[] buf = new char[6];
         int len;
 
-        if (scaled >= 99.5) {
+        if (scaled >= 999.5) {
+            final int size = 13;
+            buf = new char[size];
+            long val = Math.round(scaled);
+            int pos = size;
+            int groupCount = 0;
+
+            while (val > 0) {
+                if (groupCount == 3) {
+                    buf[--pos] = ' ';
+                    groupCount = 0;
+                }
+                buf[--pos] = (char) ('0' + (val % 10));
+                val /= 10;
+                groupCount++;
+            }
+            len = size - pos;
+            System.arraycopy(buf, pos, buf, 0, len);
+
+        } else if (scaled >= 99.5) {
             long val = Math.round(scaled);
             buf[0] = (char) ('0' + (val / 100));
             buf[1] = (char) ('0' + ((val / 10) % 10));

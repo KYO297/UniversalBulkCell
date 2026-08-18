@@ -193,11 +193,9 @@ public class BulkCellInventory implements StorageCell {
 
         String ret = ExactFormatter.format(new UInt128(hi, lo));
 
-        if (rem != 0) {
-            final int digits = (int) Math.ceil(Math.log10(storageKey.getAmountPerUnit()));
-            String format = "%." + digits + "f";
-            ret = ret + String.format(format, rem).substring(1);
-        }
+        final int digits = (int) Math.ceil(Math.log10(storageKey.getAmountPerUnit()));
+        String format = "%." + digits + "f";
+        ret = ret + String.format(format, rem).substring(1);
 
         return appendUnit(ret);
     }
