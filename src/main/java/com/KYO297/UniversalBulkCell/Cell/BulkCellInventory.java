@@ -186,19 +186,23 @@ public class BulkCellInventory implements StorageCell {
 
     public String toExactString() {
         if (storageKey == null) return appendUnit("0");
-        final long[] div = storage.divideByInt(storageKey.getAmountPerUnit());
+        final int unitSize = storageKey.getAmountPerUnit();
+
+        if (unitSize == 1) return appendUnit(ExactFormatter.format(storage));
+
+        final long[] div = storage.divideByInt(unitSize);
         final long hi = div[0];
         final long lo = div[1];
-        final double rem = (double) div[2] / storageKey.getAmountPerUnit();
+        final double rem = (double) div[2] / unitSize;
 
-        String ret = ExactFormatter.format(new UInt128(hi, lo));
+        String ret = ExactFormatter.format(hi, lo);
 
-        final int digits = (int) Math.ceil(Math.log10(storageKey.getAmountPerUnit()));
-        String format = "%." + digits + "f";
+        final int digits = (int) Math.ceil(Math.log10(unitSize));
+        final String format = "%." + digits + "f";
         String dec = String.format(format, rem).substring(2);
-        int len = (int) Math.ceil(digits / 3.0);
-        String[] parts = new String[len];
-        for (int i = 0; i < len; i++) parts[i] = dec.substring(i * 3, Math.min((i + 1) * 3, digits));
+        final int len = (int) Math.ceil(digits / 3.0);
+        final String[] parts = new String[len];
+        for (int i = 0; i < len * 3; i += 3) parts[i] = dec.substring(i, Math.min(i + 3, digits));
         dec = String.join(" ", parts);
         ret = ret + "." + dec;
 
@@ -206,7 +210,7 @@ public class BulkCellInventory implements StorageCell {
     }
 
     public String toMetricString() {
-        if (storageKey == null && filterKey != null) return appendUnit("0");
+        if (storageKey == null) return appendUnit("0");
 
         String ret = MetricFormatter.format(storage.doubleValue() / storageKey.getAmountPerUnit());
 

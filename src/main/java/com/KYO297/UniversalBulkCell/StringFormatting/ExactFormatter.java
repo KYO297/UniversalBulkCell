@@ -3,21 +3,19 @@ package com.KYO297.UniversalBulkCell.StringFormatting;
 import com.KYO297.UniversalBulkCell.Cell.UInt128;
 
 public abstract class ExactFormatter {
-    public static String format(UInt128 value) {
+    public static String format(long hi, long lo) {
         final long M32 = 0xFFFFFFFFL;
         final int len = 52;
         final char[] buf = new char[len];
         int pos = len;
 
-        long cHi = value.getHi(), cLo = value.getLo();
+        if (hi == 0 && lo == 0) return "0";
 
-        if (cHi == 0 && cLo == 0) return "0";
-
-        while (cHi != 0 || cLo != 0) {
+        while (hi != 0 || lo != 0) {
             if (pos % 4 == 1) buf[--pos] = ' ';
 
-            long a3 = cHi >>> 32, a2 = cHi & M32;
-            long a1 = cLo >>> 32, a0 = cLo & M32;
+            long a3 = hi >>> 32, a2 = hi & M32;
+            long a1 = lo >>> 32, a0 = lo & M32;
 
             long n, r, q3, q2, q1, q0;
 
@@ -38,10 +36,14 @@ public abstract class ExactFormatter {
             r = n % 10;
 
             buf[--pos] = (char) ('0' + r);
-            cHi = (q3 << 32) | q2;
-            cLo = (q1 << 32) | q0;
+            hi = (q3 << 32) | q2;
+            lo = (q1 << 32) | q0;
         }
 
         return new String(buf, pos, len - pos);
+    }
+
+    public static String format(UInt128 val) {
+        return format(val.getHi(), val.getLo());
     }
 }
