@@ -195,7 +195,12 @@ public class BulkCellInventory implements StorageCell {
 
         final int digits = (int) Math.ceil(Math.log10(storageKey.getAmountPerUnit()));
         String format = "%." + digits + "f";
-        ret = ret + String.format(format, rem).substring(1);
+        String dec = String.format(format, rem).substring(2);
+        int len = (int) Math.ceil(digits / 3.0);
+        String[] parts = new String[len];
+        for (int i = 0; i < len; i++) parts[i] = dec.substring(i * 3, Math.min((i + 1) * 3, digits));
+        dec = String.join(" ", parts);
+        ret = ret + "." + dec;
 
         return appendUnit(ret);
     }
