@@ -212,6 +212,9 @@ public class BulkCellInventory implements StorageCell {
     public String toMetricString() {
         if (storageKey == null) return appendUnit("0");
 
+        if (storageKey.getAmountPerUnit() == 1 && storage.doubleValue() < 999.5)
+            return appendUnit(ExactFormatter.format(storage));
+
         String ret = MetricFormatter.format(storage.doubleValue() / storageKey.getAmountPerUnit());
 
         if (Character.isDigit(ret.charAt(ret.length() - 1))) {
