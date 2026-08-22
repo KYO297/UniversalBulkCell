@@ -202,7 +202,7 @@ public class BulkCellInventory implements StorageCell {
         String dec = String.format(format, rem).substring(2);
         final int len = (int) Math.ceil(digits / 3.0);
         final String[] parts = new String[len];
-        for (int i = 0; i < len * 3; i += 3) parts[i] = dec.substring(i, Math.min(i + 3, digits));
+        for (int i = 0; i < len; i++) parts[i] = dec.substring(3 * i, Math.min(3 * (i + 1), digits));
         dec = String.join(" ", parts);
         ret = ret + "." + dec;
 
