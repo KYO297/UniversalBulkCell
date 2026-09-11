@@ -12,6 +12,7 @@ import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
 import appeng.util.ConfigInventory;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +34,10 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
         StorageCells.addCellHandler(HANDLER);
     }
 
+    public static ICellHandler getHandler() {
+        return HANDLER;
+    }
+
     @Override
     public ConfigInventory getConfigInventory(ItemStack is) {
         return CellConfig.create(null, is, 1);
@@ -50,11 +55,17 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
         if (inv == null) return;
 
         boolean detailed = Screen.hasShiftDown();
+        Component attackKey = Minecraft.getInstance().options.keyAttack.getTranslatedKeyMessage();
+        Component crouchKey = Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage();
 
         if (inv.isNew()) {
             tooltip.add(Component.translatable("tooltip.universalbulkcell.empty"));
             tooltip.add(Component.translatable("tooltip.universalbulkcell.locks_on_insert"));
             tooltip.add(Component.translatable("tooltip.universalbulkcell.editable"));
+            if (inv.isVoidCardInstalled()) {
+                tooltip.add(Component.translatable("tooltip.universalbulkcell.void_card_installed"));
+            }
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.clear_config", crouchKey, attackKey));
             return;
         }
 
@@ -63,6 +74,10 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
         if (inv.isPreFiltered()) {
             tooltip.add(Component.translatable("tooltip.universalbulkcell.contents", inv.getFilterKey().getDisplayName().copy().withStyle(ChatFormatting.BLUE)));
             tooltip.add(Component.translatable("tooltip.universalbulkcell.quantity", contents));
+            if (inv.isVoidCardInstalled()) {
+                tooltip.add(Component.translatable("tooltip.universalbulkcell.void_card_installed"));
+            }
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.clear_config", crouchKey, attackKey));
             return;
         }
 
@@ -73,6 +88,10 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
             tooltip.add(Component.translatable("tooltip.universalbulkcell.percentage_filled", inv.percentageFilled()));
         } else {
             tooltip.add(Component.translatable("tooltip.universalbulkcell.details").withStyle(ChatFormatting.DARK_GRAY));
+        }
+
+        if (inv.isVoidCardInstalled()) {
+            tooltip.add(Component.translatable("tooltip.universalbulkcell.void_card_installed"));
         }
 
         if (inv.isFilterMismatched()) {

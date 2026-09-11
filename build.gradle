@@ -136,6 +136,10 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     compileOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
+    runtimeOnly "appeng:appliedenergistics2-forge:${ae2_version}"
+
+    compileOnly "org.appliedenergistics:guideme:${guideme_version}:api"
+    runtimeOnly "org.appliedenergistics:guideme:${guideme_version}"
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
@@ -171,7 +175,10 @@ tasks.named('processResources', ProcessResources).configure {
             mod_authors            : mod_authors,
             mod_description        : mod_description,
             ae2_version            : ae2_version,
-            ae2_version_range      : ae2_version_range
+            ae2_version_range      : ae2_version_range,
+            guideme_version        : guideme_version,
+            guideme_version_range  : guideme_version_range
+
     ]
     inputs.properties replaceProperties
 

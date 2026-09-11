@@ -100,6 +100,9 @@ public class BulkCellInventory implements StorageCell {
             tag.remove(storageKeyTag);
             tag.remove(amtHiTag);
             tag.remove(amtLoTag);
+            if (filterKey == null && !voidCardInstalled) {
+                cellStack.setTag(null);
+            }
         }
         isPersisted = true;
     }
@@ -236,5 +239,9 @@ public class BulkCellInventory implements StorageCell {
         else if (filterKey != null) unitSymbol = filterKey.getUnitSymbol();
         if (unitSymbol == null || unitSymbol.isEmpty()) return s;
         else return s + " " + unitSymbol;
+    }
+
+    public boolean isVoidCardInstalled() {
+        return voidCardInstalled;
     }
 }

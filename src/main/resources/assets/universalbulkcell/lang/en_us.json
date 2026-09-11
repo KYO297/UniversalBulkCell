@@ -9,5 +9,8 @@
   "tooltip.universalbulkcell.editable": "Filter can be edited in the Cell Workbench",
   "tooltip.universalbulkcell.filter_mismatch": "Filter doesn't match cell contents! Insertion blocked!",
   "tooltip.universalbulkcell.percentage_filled": "%s filled",
-  "tooltip.universalbulkcell.details": "Hold shift for details"
+  "tooltip.universalbulkcell.details": "Hold shift for details",
+  "tooltip.universalbulkcell.void_card_installed": "Overflow Destruction Card Installed",
+  "tooltip.universalbulkcell.clear_config": "%s + %s to remove filter and installed card",
+  "message.universalbulkcell.not_empty": "Cell not empty. Filter not cleared."
 }
