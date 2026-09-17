@@ -1,5 +1,7 @@
 package com.KYO297.UniversalBulkCell.Cell;
 
+import java.util.Objects;
+
 public class UInt128 extends Number {
     private long hi;
     private long lo;
@@ -143,5 +145,17 @@ public class UInt128 extends Number {
         final long qLo = (q1 << 32) | (q0 & 0xFFFFFFFFL);
 
         return new long[]{qHi, qLo, rem};
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) return false;
+        if (!(other instanceof UInt128 val)) return false;
+        return (hi == val.hi && lo == val.lo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(hi, lo);
     }
 }

@@ -1,6 +1,7 @@
 package com.KYO297.UniversalBulkCell.Cell;
 
 import appeng.api.config.FuzzyMode;
+import appeng.api.stacks.AEKeyTypes;
 import appeng.api.storage.StorageCells;
 import appeng.api.storage.cells.ICellHandler;
 import appeng.api.storage.cells.ICellWorkbenchItem;
@@ -17,7 +18,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -34,13 +34,13 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
         StorageCells.addCellHandler(HANDLER);
     }
 
-    public static ICellHandler getHandler() {
-        return HANDLER;
+    public static BulkCellInventory getInventory(ItemStack stack) {
+        return (BulkCellInventory) HANDLER.getCellInventory(stack, null);
     }
 
     @Override
     public ConfigInventory getConfigInventory(ItemStack is) {
-        return CellConfig.create(null, is, 1);
+        return CellConfig.create(AEKeyTypes.getAll(), is, 1);
     }
 
     @Override
@@ -50,7 +50,11 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
 
     @Override
     @ParametersAreNonnullByDefault
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag advancedTooltips) {
+    public void appendHoverText(ItemStack stack,
+                                TooltipContext context,
+                                List<Component> tooltip,
+                                TooltipFlag advancedTooltips) {
+
         BulkCellInventory inv = (BulkCellInventory) HANDLER.getCellInventory(stack, null);
         if (inv == null) return;
 
@@ -108,7 +112,7 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
     public void setFuzzyMode(ItemStack is, FuzzyMode fzMode) {
     }
 
-    public static class BulkCellHandler implements ICellHandler {
+    private static class BulkCellHandler implements ICellHandler {
         private BulkCellHandler() {
         }
 

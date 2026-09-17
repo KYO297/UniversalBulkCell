@@ -17,15 +17,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 
+import static com.KYO297.UniversalBulkCell.Components.DataComponents.CELL_CONTENTS;
+import static com.KYO297.UniversalBulkCell.Components.DataComponents.CELL_ITEM;
+
 public class BulkCellInventory implements StorageCell {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final UInt128 storage;
     private final ItemStack cellStack;
     private final BulkCellItem cellItem;
     private final ISaveProvider host;
-    private final String storageKeyTag = "key";
-    private final String amtHiTag = "hi";
-    private final String amtLoTag = "lo";
     private final boolean voidCardInstalled;
     private AEKey storageKey;
     private AEKey filterKey;
@@ -35,19 +35,13 @@ public class BulkCellInventory implements StorageCell {
     public BulkCellInventory(ItemStack is, ISaveProvider host) {
         this.cellStack = is;
         this.host = host;
-        final var tag = cellStack.getTag();
+        storageKey = cellStack.get(CELL_ITEM);
+        UInt128 contents = cellStack.get(CELL_CONTENTS);
+        storage = contents != null ? new UInt128(contents.getHi(), contents.getLo()) : new UInt128();
         cellItem = (BulkCellItem) cellStack.getItem();
         filterKey = cellItem.getConfigInventory(cellStack).getKey(0);
         voidCardInstalled = cellItem.getUpgrades(cellStack).isInstalled(AEItems.VOID_CARD);
-        if (tag != null && tag.contains(storageKeyTag)) {
-            storageKey = AEKey.fromTagGeneric(tag.getCompound(storageKeyTag));
-            final long hi = tag.getLong(amtHiTag);
-            final long lo = tag.getLong(amtLoTag);
-            storage = new UInt128(hi, lo);
-        } else {
-            storageKey = null;
-            storage = new UInt128();
-        }
+
     }
 
     public AEKey getStorageKey() {
@@ -91,18 +85,13 @@ public class BulkCellInventory implements StorageCell {
     public void persist() {
         if (isPersisted) return;
 
-        var tag = cellStack.getOrCreateTag();
         if (storageKey != null) {
-            tag.put(storageKeyTag, storageKey.toTagGeneric());
-            tag.putLong(amtHiTag, storage.getHi());
-            tag.putLong(amtLoTag, storage.getLo());
+            cellStack.set(CELL_ITEM, storageKey);
+            cellStack.set(CELL_CONTENTS, storage);
         } else {
-            tag.remove(storageKeyTag);
-            tag.remove(amtHiTag);
-            tag.remove(amtLoTag);
-            if (filterKey == null && !voidCardInstalled) {
-                cellStack.setTag(null);
-            }
+            cellStack.remove(CELL_ITEM);
+            cellStack.remove(CELL_CONTENTS);
+            // TODO check if stacks with new cell
         }
         isPersisted = true;
     }

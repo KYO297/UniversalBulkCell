@@ -5,6 +5,7 @@ navigation:
   icon: universalbulkcell:universal_bulk_cell
 item_ids:
   - universalbulkcell:universal_bulk_cell
+  - universalbulkcell:universal_bulk_component
 ---
 
 # Universal Bulk Storage Cell
