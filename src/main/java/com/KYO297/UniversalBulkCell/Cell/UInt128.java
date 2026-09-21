@@ -6,6 +6,11 @@ public class UInt128 extends Number {
     private long hi;
     private long lo;
 
+    public UInt128(UInt128 uint128) {
+        this.hi = uint128.hi;
+        this.lo = uint128.lo;
+    }
+
     public UInt128(long hi, long lo) {
         this.hi = hi;
         this.lo = lo;

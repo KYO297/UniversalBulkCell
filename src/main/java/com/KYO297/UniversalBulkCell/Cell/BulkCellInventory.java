@@ -37,11 +37,10 @@ public class BulkCellInventory implements StorageCell {
         this.host = host;
         storageKey = cellStack.get(CELL_ITEM);
         UInt128 contents = cellStack.get(CELL_CONTENTS);
-        storage = contents != null ? new UInt128(contents.getHi(), contents.getLo()) : new UInt128();
+        storage = (contents != null) ? new UInt128(contents) : new UInt128();
         cellItem = (BulkCellItem) cellStack.getItem();
         filterKey = cellItem.getConfigInventory(cellStack).getKey(0);
         voidCardInstalled = cellItem.getUpgrades(cellStack).isInstalled(AEItems.VOID_CARD);
-
     }
 
     public AEKey getStorageKey() {
@@ -77,21 +76,15 @@ public class BulkCellInventory implements StorageCell {
     }
 
     @Override
-    public boolean canFitInsideCell() {
-        return storage.isEmpty();
-    }
-
-    @Override
     public void persist() {
         if (isPersisted) return;
 
         if (storageKey != null) {
             cellStack.set(CELL_ITEM, storageKey);
-            cellStack.set(CELL_CONTENTS, storage);
+            cellStack.set(CELL_CONTENTS, new UInt128(storage));
         } else {
             cellStack.remove(CELL_ITEM);
             cellStack.remove(CELL_CONTENTS);
-            // TODO check if stacks with new cell
         }
         isPersisted = true;
     }

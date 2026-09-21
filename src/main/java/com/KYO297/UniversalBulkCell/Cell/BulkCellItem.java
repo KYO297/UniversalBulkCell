@@ -12,6 +12,7 @@ import appeng.api.upgrades.UpgradeInventories;
 import appeng.items.AEBaseItem;
 import appeng.items.contents.CellConfig;
 import appeng.util.ConfigInventory;
+import appeng.util.Platform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -55,7 +56,9 @@ public class BulkCellItem extends AEBaseItem implements ICellWorkbenchItem {
                                 List<Component> tooltip,
                                 TooltipFlag advancedTooltips) {
 
-        BulkCellInventory inv = (BulkCellInventory) HANDLER.getCellInventory(stack, null);
+        if (!Platform.isClient()) return;
+
+        BulkCellInventory inv = getInventory(stack);
         if (inv == null) return;
 
         boolean detailed = Screen.hasShiftDown();
