@@ -1,7 +1,7 @@
 # Universal Bulk Storage Cell
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/KYO297/UniversalBulkCell/refs/heads/master/src/main/resources/icon.png" alt="UBSC" width=256>
+  <img src="https://raw.githubusercontent.com/KYO297/UniversalBulkCell/refs/heads/1.21.1/src/main/resources/icon.png" alt="UBSC" width=256>
 </div>
 
 Universal Bulk Storage Cell is an add-on for [Applied Energistics 2](https://github.com/AppliedEnergistics/Applied-Energistics-2).
